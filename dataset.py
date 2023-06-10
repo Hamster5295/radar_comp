@@ -63,7 +63,7 @@ def preprocess(path, include_angle, pic_size, pre, window):
 
         if include_angle:
             ev = np.vstack((ag, ev, eg))
-        ev = lee.apply_window(ev) if window else eh
+        ev = lee.apply_window(ev) if window else ev
         ev = split_pics(ev, pic_size)
 
     else:
@@ -80,7 +80,7 @@ def preprocess(path, include_angle, pic_size, pre, window):
 
         if include_angle:
             ev = np.vstack((ag, ev, eg))
-        ev = lee.apply_window(ev) if window else eh
+        ev = lee.apply_window(ev) if window else ev
         ev = np.fft.ifft2(ev)
         ev = np.fft.fftshift(ev)
         ev = np.abs(ev).astype('float32')
