@@ -5,3 +5,10 @@ TRAIN_DATA/*
 .idea/*
 
 *.xls
+
+*.ipynb
+.ipynb_checkpoints
+.ipynb_checkpoints/*
+
+__pycache__
+__pycache__/*
