@@ -96,7 +96,6 @@ class TrainRadarData(Dataset):
 
     def __init__(self, path, preprocess=True, apply_window=True):
         self.pic_size = (512, 512)
-        self.save = False
         self.preprocess = preprocess
         self.apply_window = apply_window
         self.paths = []
@@ -142,12 +141,13 @@ class TrainRadarData(Dataset):
 class ValidateRadarData(Dataset):
     include_angle = False
 
-    def __init__(self, path):
+    def __init__(self, path, preprocess=True, apply_window=True):
         if os.path.isabs(path):
             path = os.path.relpath(path).replace('\\', '/')
 
         self.pic_size = (512, 512)
-        self.save = False
+        self.preprocess = preprocess
+        self.apply_window = apply_window
         self.paths = []
         for path, _, files in os.walk(path):
             for f in files:
@@ -155,7 +155,7 @@ class ValidateRadarData(Dataset):
 
     def __getitem__(self, item):
         path = self.paths[item]
-        uni, ag, eg = preprocess(path, self.include_angle, self.pic_size)
+        uni, ag, eg = preprocess(path, self.include_angle, self.pic_size, self.preprocess, self.apply_window)
         return path[0], uni, ag, eg
 
     def __len__(self):
