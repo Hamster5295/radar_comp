@@ -45,7 +45,7 @@ def split_pics(ori, target_shape=None):
     return arr
 
 
-def preprocess(path, include_angle, pic_size, pre, window):
+def preprocess(path, include_angle, pic_size, split, window):
     mat = loadmat(path[1])
 
     ag, eg = mat['frame_AzimuthDegree'], mat['frame_ElevationDegree']
@@ -55,7 +55,7 @@ def preprocess(path, include_angle, pic_size, pre, window):
     eh = mat['frame_Eh']
     ev = mat['frame_Ev']
 
-    if pre:
+    if split:
         if include_angle:
             eh = np.vstack((ag, eh, eg))
         eh = lee.apply_window(eh) if window else eh
@@ -94,9 +94,9 @@ def preprocess(path, include_angle, pic_size, pre, window):
 class TrainRadarData(Dataset):
     include_angle = False
 
-    def __init__(self, path, preprocess=True, apply_window=True):
+    def __init__(self, path, split=True, apply_window=True):
         self.pic_size = (512, 512)
-        self.preprocess = preprocess
+        self.preprocess = split
         self.apply_window = apply_window
         self.paths = []
         for path, folders, _ in os.walk(path):
@@ -112,41 +112,25 @@ class TrainRadarData(Dataset):
 
     def __getitem__(self, item):
         path = self.paths[item]
-
         uni, ag, eg = preprocess(path, self.include_angle, self.pic_size, self.preprocess, self.apply_window)
-
-        # if self.save:
-        #     p = f"FILTER/{path[0] + 1}"
-        #     if not os.path.exists(p):
-        #         os.makedirs(p)
-        #     ev[0].dump(p + f"/ev_{path[2]}.arr")
-        #     eh[0].dump(p + f"/eh_{path[2]}.arr")
-
         arr = np.zeros(10)
         arr[path[0]] = 1
-
         return arr, uni, ag, eg
 
     def __len__(self):
         return len(self.paths)
-
-    # def save_filtered_data(self):
-    #     self.save = True
-    #     for i in range(len(self)):
-    #         self[i]
-    #     self.save = False
 
 
 # 用于验证的数据集
 class ValidateRadarData(Dataset):
     include_angle = False
 
-    def __init__(self, path, preprocess=True, apply_window=True):
+    def __init__(self, path, split=True, apply_window=True):
         if os.path.isabs(path):
             path = os.path.relpath(path).replace('\\', '/')
 
         self.pic_size = (512, 512)
-        self.preprocess = preprocess
+        self.preprocess = split
         self.apply_window = apply_window
         self.paths = []
         for path, _, files in os.walk(path):
