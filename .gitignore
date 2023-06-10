@@ -1,0 +1,7 @@
+TRAIN_DATA
+TRAIN_DATA/*
+
+.idea
+.idea/*
+
+*.xls
