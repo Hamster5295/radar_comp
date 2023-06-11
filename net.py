@@ -126,11 +126,18 @@ class MyModel2(Module):
         )
 
     def forward(self, x):
-        a = self.res1(x[:, 0].unsqueeze(1)).squeeze()
-        b = self.res2(x[:, 1].unsqueeze(1)).squeeze()
-        c = self.res3(x[:, 2].unsqueeze(1)).squeeze()
-        d = self.res4(x[:, 3].unsqueeze(1)).squeeze()
-        x = self.total_se(torch.concatenate((a, b, c, d), 1))
+        if x.shape[1] == 4:
+            a = self.res1(x[:, 0].unsqueeze(1)).squeeze()
+            b = self.res2(x[:, 1].unsqueeze(1)).squeeze()
+            c = self.res3(x[:, 2].unsqueeze(1)).squeeze()
+            d = self.res4(x[:, 3].unsqueeze(1)).squeeze()
+            x = self.total_se(torch.concatenate((a, b, c, d), 1))
+
+        else:
+            a = self.res1(x[:, 0].unsqueeze(1)).squeeze()
+            b = self.res2(x[:, 1].unsqueeze(1)).squeeze()
+            x = self.total_se(torch.concatenate((a, b), 1))
+
         return x
 
 
