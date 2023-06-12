@@ -227,7 +227,7 @@ class ModelWA3(MyModel2):
         b = self.res2(x[:, 1].unsqueeze(1)).squeeze()
         c = self.res3(x[:, 2].unsqueeze(1)).squeeze()
         d = self.res4(x[:, 3].unsqueeze(1)).squeeze()
-        e = self.angle_process(np.concatenate((ag.min(2)[0], ag.max(2)[0], eg.min(2)[0], eg.max(2)[0]), dim=1))
+        e = self.angle_process(torch.concatenate((ag.min(2)[0], ag.max(2)[0], eg.min(2)[0], eg.max(2)[0]), dim=1))
         total = torch.concatenate((a, b, c, d, e), dim=1)
         return self.total_se(total)
         # print(ag.shape)
