@@ -79,7 +79,7 @@ class MyModelWA(MyModel):
         x = self.layer4(x)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(torch.concatenate((x, ag.squeeze(), eg.squeeze()), dim=1))
+        x = self.fc(torch.concatenate((x, ag.min(2)[0], ag.max(2)[0], eg.min(2)[0], eg.max(2)[0]), dim=1))
         x = self.dropout_fc(x)
         return x
 
@@ -210,7 +210,6 @@ class ModelWithAngleInPic(MyModel2):
 
 
 class ModelWA3(MyModel2):
-
     use_angle = True
     angle_in_pic = False
 
