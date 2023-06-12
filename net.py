@@ -232,6 +232,32 @@ class ModelWA3(MyModel2):
         # print(ag.shape)
 
 
+class ModelWAAve(MyModel2):
+    use_angle = True
+    angle_in_pic = False
+
+    def __init__(self):
+        super().__init__()
+        self.total_se = Sequential(
+            MaxPool2d((4, 1), stride=1),
+            Linear(512, 128),
+            ReLU(),
+            Dropout(p=0.3),
+            Linear(128, 10),
+            ReLU(),
+            Dropout()
+        )
+
+    def forward(self, x, ag, eg):
+        a = self.res1((x[:, 0] / ag).unsqueeze(1)).squeeze().unsqueeze(1)
+        b = self.res2((x[:, 1] / ag).unsqueeze(1)).squeeze().unsqueeze(1)
+        c = self.res3((x[:, 2] / eg).unsqueeze(1)).squeeze().unsqueeze(1)
+        d = self.res4((x[:, 3] / eg).unsqueeze(1)).squeeze().unsqueeze(1)
+
+        total = torch.concatenate((a, b, c, d), dim=1)
+        return self.total_se(total)
+
+
 def train(dataloader, model, loss_fn, optimizer, label='训练'):
     bar_length = 20
     size = len(dataloader.dataset)

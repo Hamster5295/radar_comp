@@ -21,14 +21,28 @@ device = (
 print("使用 {}".format(device))
 
 
+def lim(pic):
+    return pic
+    min, max = 0.5, 99.5
+    nmin = np.percentile(pic, min)
+    nmax = np.percentile(pic, max)
+    pic = np.clip(pic, nmin, nmax)
+    return pic
+
+
+def ifft(pic):
+    pic = np.fft.ifft2(pic)
+    pic = np.fft.fftshift(pic)
+    pic = np.abs(pic).astype('float32')
+    return pic
+
+
 def split_pics(ori, target_shape=None):
     shape = (ori.shape[0] // 2, ori.shape[1] // 2)
     arr = np.array([])
     for i in range(2):
         sli = ori[i * shape[0]:(i + 1) * shape[0], :]
-        sli = np.fft.ifft2(sli)
-        sli = np.fft.fftshift(sli)
-        sli = np.abs(sli).astype('float32')
+        sli = ifft(sli)
 
         if target_shape is not None:
             dshape = (target_shape[0] - sli.shape[0], target_shape[1] - sli.shape[1])
@@ -40,6 +54,7 @@ def split_pics(ori, target_shape=None):
         nmin = np.percentile(sli, min)
         nmax = np.percentile(sli, max)
         sli = np.clip(sli, nmin, nmax)
+        sli = lim(sli)
         sli = sli[np.newaxis]
         arr = np.vstack((arr, sli)) if i > 0 else sli
     return arr
@@ -71,9 +86,8 @@ def preprocess(path, include_angle, pic_size, split, window):
             eh = np.vstack((ag, eh, eg))
         eh = lee.apply_window(eh) if window else eh
         #     eh = split_pics(eh, pic_size)
-        eh = np.fft.ifft2(eh)
-        eh = np.fft.fftshift(eh)
-        eh = np.abs(eh).astype('float32')
+        eh = ifft(eh)
+        eh = lim(eh)
         dshape = (pic_size[0] - eh.shape[0], pic_size[1] - eh.shape[1])
         eh = np.pad(eh, ((dshape[0] // 2, ceil(dshape[0] / 2)), (dshape[1] // 2, ceil(dshape[1] / 2))))
         eh = eh[np.newaxis]
@@ -81,9 +95,8 @@ def preprocess(path, include_angle, pic_size, split, window):
         if include_angle:
             ev = np.vstack((ag, ev, eg))
         ev = lee.apply_window(ev) if window else ev
-        ev = np.fft.ifft2(ev)
-        ev = np.fft.fftshift(ev)
-        ev = np.abs(ev).astype('float32')
+        ev = ifft(eh)
+        ev = lim(ev)
         dshape = (pic_size[0] - ev.shape[0], pic_size[1] - ev.shape[1])
         ev = np.pad(ev, ((dshape[0] // 2, ceil(dshape[0] / 2)), (dshape[1] // 2, ceil(dshape[1] / 2))))
         ev = ev[np.newaxis]
