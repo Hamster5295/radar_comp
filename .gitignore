@@ -12,3 +12,5 @@ TRAIN_DATA/*
 
 __pycache__
 __pycache__/*
+
+*.pt

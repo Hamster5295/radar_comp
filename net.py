@@ -79,7 +79,7 @@ class MyModelWA(MyModel):
         x = self.layer4(x)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(torch.concatenate((x, ag, eg), dim=1))
+        x = self.fc(torch.concatenate((x, ag.squeeze(), eg.squeeze()), dim=1))
         x = self.dropout_fc(x)
         return x
 
