@@ -342,7 +342,7 @@ def test(dataloader, model, loss_fn, label='测试', cnt=-1):
     return correct * 100, test_loss
 
 
-def validate(dataloader, model):
+def validate(dataloader, model, postprocess=None):
     model.eval()
     results = []
 
@@ -351,7 +351,11 @@ def validate(dataloader, model):
     for file, uni, ag, eg in dataloader:
         uni, ag, eg = uni.to(device), ag.to(device).float(), eg.to(device).float()
 
-        pred = model(uni).squeeze() if not model.use_angle else model(uni, ag, eg).squeeze().cpu().detach().numpy()
+        pred = model(uni).squeeze() if not model.use_angle else model(uni, ag, eg).squeeze()
+        if callable(postprocess):
+            pred = postprocess(pred)
+
+        pred = pred.cpu().detach().numpy()
         for i in range(pred.shape[0]):
             results.append((file[i], np.argmax(pred[i]) + 1, np.max(pred[i])))
     print("验证完成！")

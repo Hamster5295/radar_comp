@@ -2,10 +2,14 @@ import os.path
 
 import torch
 import xlwt
+from torch import nn
 from torch.utils.data import DataLoader
 
 from dataset import ValidateRadarData
 from net import validate
+
+mdl_path = 'model_backup.pt'
+postprocess = nn.Softmax(dim=1)
 
 
 def main():
@@ -16,12 +20,12 @@ def main():
         else:
             print("该目录不存在!\n")
     print("加载数据集...")
-    dataset = ValidateRadarData(file)
+    dataset = ValidateRadarData(file, split=False, apply_window=False)
     dataloader = DataLoader(dataset, batch_size=2)
     print("加载模型...")
-    mdl = torch.load('./model.pt')
+    mdl = torch.load(mdl_path)
     print("开始验证...")
-    results = validate(dataloader, mdl)
+    results = validate(dataloader, mdl, postprocess)
     print("正在生成表格...")
     book = xlwt.Workbook(encoding='utf-8')
     sheet = book.add_sheet('结果表格')

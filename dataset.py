@@ -95,7 +95,7 @@ def preprocess(path, include_angle, pic_size, split, window):
         if include_angle:
             ev = np.vstack((ag, ev, eg))
         ev = lee.apply_window(ev) if window else ev
-        ev = ifft(eh)
+        ev = ifft(ev)
         ev = lim(ev)
         dshape = (pic_size[0] - ev.shape[0], pic_size[1] - ev.shape[1])
         ev = np.pad(ev, ((dshape[0] // 2, ceil(dshape[0] / 2)), (dshape[1] // 2, ceil(dshape[1] / 2))))
