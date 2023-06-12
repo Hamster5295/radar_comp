@@ -94,10 +94,11 @@ def preprocess(path, include_angle, pic_size, split, window):
 class TrainRadarData(Dataset):
     include_angle = False
 
-    def __init__(self, path, split=True, apply_window=True):
+    def __init__(self, path, split=True, apply_window=True, normalize=True):
         self.pic_size = (512, 512)
         self.preprocess = split
         self.apply_window = apply_window
+        self.normalize = normalize
         self.paths = []
         for path, folders, _ in os.walk(path):
             for cls in folders:

@@ -9,6 +9,10 @@ from torchvision.models import ResNet18_Weights
 
 from dataset import device
 
+print("第一次初始化时，可能需要下载一些文件，请耐心等候...")
+resnet = models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+print("完成!\n")
+
 
 class MyModel(Module):
     use_angle = False
@@ -49,9 +53,35 @@ class MyModel(Module):
         x = self.dropout_fc(x)
         return x
 
-print("第一次初始化时，可能需要下载一些文件，请耐心等候...")
-resnet = models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
-print("完成!\n")
+
+class MyModelWA(MyModel):
+    use_angle = True
+
+    def __init__(self):
+        super().__init__()
+        self.fc = Linear(512 + 4, 10)
+        self.angle_process = Sequential(
+            Linear(4, 4),
+            ReLU()
+        )
+
+    def forward(self, x, ag, eg):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+        x = self.layer1(x)
+        # x = self.dropout1(x)
+        x = self.layer2(x)
+        # x = self.dropout2(x)
+        x = self.layer3(x)
+        # x = self.dropout3(x)
+        x = self.layer4(x)
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(torch.concatenate((x, ag, eg), dim=1))
+        x = self.dropout_fc(x)
+        return x
 
 
 class MyModel2(Module):
@@ -177,6 +207,26 @@ class ModelWithAngleInPic(MyModel2):
 
     def forward(self, x, ag, eg):
         return super().forward(x)
+
+
+class ModelWA3(MyModel2):
+    def __init__(self):
+        super().__init__()
+        self.angle_process = Sequential(
+            Linear(4, 4),
+            ReLU()
+        )
+        self.total_se[0] = Linear(2048 + 4, 512)
+
+    def forward(self, x, ag, eg):
+        a = self.res1(x[:, 0].unsqueeze(1)).squeeze()
+        b = self.res2(x[:, 1].unsqueeze(1)).squeeze()
+        c = self.res3(x[:, 2].unsqueeze(1)).squeeze()
+        d = self.res4(x[:, 3].unsqueeze(1)).squeeze()
+        e = self.angle_process(np.concatenate((ag.min(2)[0], ag.max(2)[0], eg.min(2)[0], eg.max(2)[0]), dim=1))
+        total = torch.concatenate((a, b, c, d, e), dim=1)
+        return self.total_se(total)
+        # print(ag.shape)
 
 
 def train(dataloader, model, loss_fn, optimizer, label='训练'):
