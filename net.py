@@ -210,6 +210,10 @@ class ModelWithAngleInPic(MyModel2):
 
 
 class ModelWA3(MyModel2):
+
+    use_angle = True
+    angle_in_pic = False
+
     def __init__(self):
         super().__init__()
         self.angle_process = Sequential(
