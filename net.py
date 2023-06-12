@@ -276,7 +276,7 @@ def train_all(epochs, train_loader, test_loader, model, loss_fn, optimizer, self
             self_losses.append(self_loss)
         curr = test(test_loader, model, loss_fn)[0]
         currs.append(curr)
-        if save_interval != -1 and (i + 1) % save_interval == 0:
+        if (save_interval != -1 and (i + 1) % save_interval == 0) or curr > 90:
             torch.save(model, f'{file_name}_epoch_{i + 1}.pt')
             print("模型已保存!")
         print()
