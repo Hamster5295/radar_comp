@@ -14,7 +14,7 @@ postprocess = nn.Softmax(dim=1)
 
 def main():
     while True:
-        file = input("输入测试文件(validData文件夹)路径: ")
+        file = input("输入测试文件夹(validData文件夹)路径: ")
         if os.path.exists(file):
             break
         else:
@@ -40,7 +40,7 @@ def main():
         sheet.write(i + 1, 3, f"{results[i][2]:>6}")
 
     book.save("./结果.xls")
-    print("完成!")
+    print("完成! 表格保存在当前目录下的 结果.xls")
 
 
 if __name__ == '__main__':

@@ -342,7 +342,7 @@ def test(dataloader, model, loss_fn, label='测试', cnt=-1):
     return correct * 100, test_loss
 
 
-def validate(dataloader, model, postprocess=None, refusion=0.7):
+def validate(dataloader, model, postprocess=None, refusion=0.5):
     model.eval()
     results = []
 
