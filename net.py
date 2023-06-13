@@ -259,7 +259,16 @@ class ModelWA3(MyModel2):
         # print(ag.shape)
 
 
-class ModelWAAve(MyModel2):
+class ModelWAAve1(MyModel):
+    use_angle = True
+
+    def forward(self, x, ag, eg):
+        x[:, 0] /= ag
+        x[:, 1] /= eg
+        return super().forward(x)
+
+
+class ModelWAAve2(MyModel2):
     use_angle = True
     angle_in_pic = False
 
