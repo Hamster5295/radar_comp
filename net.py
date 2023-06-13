@@ -342,7 +342,7 @@ def test(dataloader, model, loss_fn, label='测试', cnt=-1):
     return correct * 100, test_loss
 
 
-def validate(dataloader, model, postprocess=None):
+def validate(dataloader, model, postprocess=None, refusion=0.7):
     model.eval()
     results = []
 
@@ -357,7 +357,9 @@ def validate(dataloader, model, postprocess=None):
 
         pred = pred.cpu().detach().numpy()
         for i in range(pred.shape[0]):
-            results.append((file[i], np.argmax(pred[i]) + 1, np.max(pred[i])))
+            pred_max = np.max(pred[i])
+            pred_cls = np.argmax(pred[i]) + 1 if pred_max > refusion else 0
+            results.append((file[i], pred_cls, pred_max))
     print("验证完成！")
 
     return results
