@@ -50,10 +50,6 @@ def split_pics(ori, target_shape=None):
         elif i == 0:
             target_shape = sli.shape
 
-        min, max = 0.5, 99.5
-        nmin = np.percentile(sli, min)
-        nmax = np.percentile(sli, max)
-        sli = np.clip(sli, nmin, nmax)
         sli = lim(sli)
         sli = sli[np.newaxis]
         arr = np.vstack((arr, sli)) if i > 0 else sli
