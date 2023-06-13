@@ -103,8 +103,8 @@ def preprocess(path, include_angle, pic_size, split, window):
 class TrainRadarData(Dataset):
     include_angle = False
 
-    def __init__(self, path, split=True, apply_window=True, normalize=True):
-        self.pic_size = (512, 512)
+    def __init__(self, path, pic_size=(512, 512), split=True, apply_window=True, normalize=True):
+        self.pic_size = pic_size
         self.preprocess = split
         self.apply_window = apply_window
         self.normalize = normalize
@@ -135,11 +135,11 @@ class TrainRadarData(Dataset):
 class ValidateRadarData(Dataset):
     include_angle = False
 
-    def __init__(self, path, split=True, apply_window=True):
+    def __init__(self, path, pic_size=(512, 512), split=True, apply_window=True):
         if os.path.isabs(path):
             path = os.path.relpath(path).replace('\\', '/')
 
-        self.pic_size = (512, 512)
+        self.pic_size = pic_size
         self.preprocess = split
         self.apply_window = apply_window
         self.paths = []

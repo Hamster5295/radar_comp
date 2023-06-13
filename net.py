@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from torch.nn import Conv2d, BatchNorm2d, ReLU, MaxPool2d, Dropout, AdaptiveAvgPool2d, Sequential, Linear, Module
 from torchvision import models
-from torchvision.models import ResNet18_Weights
+from torchvision.models import ResNet18_Weights, ResNet50_Weights
 
 from dataset import device
 
@@ -82,6 +82,33 @@ class MyModelWA(MyModel):
         x = self.fc(torch.concatenate((x, ag.min(2)[0], ag.max(2)[0], eg.min(2)[0], eg.max(2)[0]), dim=1))
         x = self.dropout_fc(x)
         return x
+
+
+class UniModel(Module):
+    use_angle = False
+    angle_in_pic = False
+
+    def __init__(self):
+        self.mdl1 = MyModel()
+        self.mdl2 = MyModel()
+        self.mdl3 = MyModel()
+        self.mdl4 = MyModel()
+        pass
+
+    def forward(self, x):
+        if self.training:
+            self.mdl1.train()
+            self.mdl2.train()
+            self.mdl3.train()
+            self.mdl4.train()
+
+            pass
+        else:
+            self.mdl1.eval()
+            self.mdl2.eval()
+            self.mdl3.eval()
+            self.mdl4.eval()
+            pass
 
 
 class MyModel2(Module):
@@ -256,6 +283,20 @@ class ModelWAAve(MyModel2):
 
         total = torch.concatenate((a, b, c, d), dim=1)
         return self.total_se(total)
+
+
+class ResNet50Mod(Module):
+    def __init__(self):
+        super().__init__()
+        res = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+        res.conv1 = Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.drop = Dropout()
+        self.res = res
+
+    def forward(self, x):
+        x = self.res(x)
+        x = self.drop(x)
+        return x
 
 
 def train(dataloader, model, loss_fn, optimizer, label='训练'):
