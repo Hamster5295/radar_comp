@@ -9,6 +9,9 @@ from dataset import ValidateRadarData
 from net import validate
 
 mdl_path = 'model_backup.pt'
+split = False
+apply_window = False
+
 postprocess = nn.Softmax(dim=1)
 
 
@@ -20,7 +23,7 @@ def main():
         else:
             print("该目录不存在!\n")
     print("加载数据集...")
-    dataset = ValidateRadarData(file, split=False, apply_window=False)
+    dataset = ValidateRadarData(file, split, apply_window)
     dataloader = DataLoader(dataset, batch_size=2)
     print("加载模型...")
     mdl = torch.load(mdl_path)
