@@ -41,11 +41,8 @@ class MyModel(Module):
         x = self.relu(x)
         x = self.maxpool(x)
         x = self.layer1(x)
-        # x = self.dropout1(x)
         x = self.layer2(x)
-        # x = self.dropout2(x)
         x = self.layer3(x)
-        # x = self.dropout3(x)
         x = self.layer4(x)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
@@ -88,27 +85,57 @@ class UniModel(Module):
     use_angle = False
     angle_in_pic = False
 
-    def __init__(self):
-        self.mdl1 = MyModel()
-        self.mdl2 = MyModel()
-        self.mdl3 = MyModel()
-        self.mdl4 = MyModel()
-        pass
+    def __init__(self, path1, path2, path3, path4):
+        super().__init__()
+        self.mdl1 = torch.load(path1)
+        self.mdl2 = torch.load(path2)
+        self.mdl3 = torch.load(path3)
+        self.mdl4 = torch.load(path4)
+
+        self.mdl1.conv1 = Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.mdl2.conv1 = Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.mdl3.conv1 = Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.mdl4.conv1 = Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+
+        def forward(self, x):
+            x = self.conv1(x)
+            x = self.bn1(x)
+            x = self.relu(x)
+            x = self.maxpool(x)
+            x = self.layer1(x)
+            x = self.layer2(x)
+            x = self.layer3(x)
+            x = self.layer4(x)
+            x = self.avgpool(x)
+            x = x.view(x.size(0), -1)
+            return x
+
+        self.mdl1.forward = forward
+        self.mdl2.forward = forward
+        self.mdl3.forward = forward
+        self.mdl4.forward = forward
+
+        self.mdl1.eval()
+        self.mdl2.eval()
+        self.mdl3.eval()
+        self.mdl4.eval()
+
+        self.postprocess = Sequential(
+            MaxPool2d(kernel_size=(4, 1)),
+            Linear(512, 128),
+            ReLU(),
+            Linear(128, 10),
+            ReLU(),
+            Dropout()
+        )
 
     def forward(self, x):
-        if self.training:
-            self.mdl1.train()
-            self.mdl2.train()
-            self.mdl3.train()
-            self.mdl4.train()
-
-            pass
-        else:
-            self.mdl1.eval()
-            self.mdl2.eval()
-            self.mdl3.eval()
-            self.mdl4.eval()
-            pass
+        a = self.mdl1.forward(self.mdl1, x[:, 0].unsqueeze(1)).unsqueeze(1)
+        b = self.mdl2.forward(self.mdl2, x[:, 1].unsqueeze(1)).unsqueeze(1)
+        c = self.mdl3.forward(self.mdl3, x[:, 2].unsqueeze(1)).unsqueeze(1)
+        d = self.mdl4.forward(self.mdl4, x[:, 3].unsqueeze(1)).unsqueeze(1)
+        x = torch.concatenate((a, b, c, d), 1)
+        return self.postprocess(x)
 
 
 class MyModel2(Module):
