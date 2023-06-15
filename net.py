@@ -29,7 +29,7 @@ class MyModel(Module):
         self.layer2 = resnet.layer2
         # self.dropout2 = nn.Dropout(p=0.1)
         self.layer3 = resnet.layer3
-        # self.dropout3 = nn.Dropout(p=0.2)
+        self.dropout3 = Dropout(p=0.3)
         self.layer4 = resnet.layer4
         self.avgpool = AdaptiveAvgPool2d((1, 1))
         self.fc = Linear(512, 10)
