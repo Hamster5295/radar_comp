@@ -11,6 +11,7 @@ from net import validate
 mdl_path = 'model_backup.pt'
 split = False
 apply_window = False
+refusion = 0.6
 
 postprocess = nn.Softmax(dim=1)
 
@@ -28,7 +29,7 @@ def main():
     print("加载模型...")
     mdl = torch.load(mdl_path)
     print("开始验证...")
-    results = validate(dataloader, mdl, postprocess)
+    results = validate(dataloader, mdl, postprocess, refusion=refusion)
     print("正在生成表格...")
     book = xlwt.Workbook(encoding='utf-8')
     sheet = book.add_sheet('结果表格')
