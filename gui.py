@@ -5,7 +5,7 @@ import xlwt
 from torch import nn
 from torch.utils.data import DataLoader
 
-from dataset import ValidateRadarData
+from dataset import ValidateRadarData, device
 from net import validate
 
 mdl_path = 'model_backup.pt'
@@ -27,7 +27,7 @@ def main():
     dataset = ValidateRadarData(file, split=split, apply_window=apply_window)
     dataloader = DataLoader(dataset, batch_size=2)
     print("加载模型...")
-    mdl = torch.load(mdl_path)
+    mdl = torch.load(mdl_path, map_location=torch.device(device=device))
     print("开始验证...")
     results = validate(dataloader, mdl, postprocess, refusion=refusion)
     print("正在生成表格...")
