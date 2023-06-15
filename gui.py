@@ -23,7 +23,7 @@ def main():
         else:
             print("该目录不存在!\n")
     print("加载数据集...")
-    dataset = ValidateRadarData(file, split, apply_window)
+    dataset = ValidateRadarData(file, split=split, apply_window=apply_window)
     dataloader = DataLoader(dataset, batch_size=2)
     print("加载模型...")
     mdl = torch.load(mdl_path)
