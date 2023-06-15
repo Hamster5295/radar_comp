@@ -121,11 +121,11 @@ class UniModel(Module):
         self.mdl4.eval()
 
         self.postprocess = Sequential(
-            MaxPool2d(kernel_size=(4, 1)),
+            Conv2d(1, 1, kernel_size=(4, 1), stride=(1, 1), padding=(0, 0), bias=False),
             Linear(512, 128),
             ReLU(),
+            Dropout(p = 0.3),
             Linear(128, 10),
-            ReLU(),
             Dropout()
         )
 
