@@ -124,7 +124,7 @@ class UniModel(Module):
             Conv2d(1, 1, kernel_size=(4, 1), stride=(1, 1), padding=(0, 0), bias=False),
             Linear(512, 128),
             ReLU(),
-            Dropout(p = 0.3),
+            Dropout(p=0.3),
             Linear(128, 10),
             Dropout()
         )
@@ -417,6 +417,37 @@ def test(dataloader, model, loss_fn, label='测试', cnt=-1):
     correct /= count * batch
     print(f"{label}: [{bar_length * '='}] 完成  准确率: {(100 * correct):>0.1f}%,平均误差: {test_loss:>8f}")
     return correct * 100, test_loss
+
+
+def test_refusion(dataloader, model, refusion=0.6, label='测试误判', cnt=-1):
+    model.eval()
+
+    batch = dataloader.batch_size
+    err = 0
+    count = 0
+    size = len(dataloader.dataset) if cnt == -1 else cnt
+    bar_length = 20
+
+    dataloader.dataset.include_angle = model.angle_in_pic
+
+    with torch.no_grad():
+        for cls, uni, ag, eg in dataloader:
+            cls, uni, ag, eg = cls.to(device), uni.to(device), ag.to(device).float(), eg.to(device).float()
+
+            pred = model(uni).squeeze() if not model.use_angle else model(uni, ag, eg).squeeze()
+            err += (pred.max(dim=1)[0] <= refusion).type(torch.float).sum().item()
+            count += 1
+
+            progress = floor(count * batch / size * bar_length)
+            sys.stdout.write(
+                f"{label}: [{progress * '='}{(bar_length - progress) * ' '}] [{count * batch:>5d}/{size:>5d}]\r")
+            sys.stdout.flush()
+
+            if count * batch >= size:
+                break
+    err /= count * batch  # 实际测试的数量 = cnt * 一批的数量（16）
+    print(f"{label}: [{bar_length * '='}] 完成  错误率: {(100 * err):>0.1f}%")
+    return err * 100
 
 
 def validate(dataloader, model, postprocess=None, refusion=0.5):
